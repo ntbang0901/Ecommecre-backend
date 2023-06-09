@@ -1,9 +1,11 @@
 const app = require("./src/app")
 
-const PORT = 3050
+const {
+  app: { port },
+} = require("./src/configs/config")
 
-const server = app.listen(PORT, () => {
-  console.log(`WSV Ecommerce start with port::${PORT}`)
+const server = app.listen(port, () => {
+  console.log(`WSV Ecommerce start with port::${port}`)
 })
 
 process.on("SIGINT", () => {
