@@ -10,6 +10,12 @@ const app = express()
 app.use(morgan("dev"))
 app.use(helmet())
 app.use(compression())
+app.use(express.json())
+app.use(
+  express.urlencoded({
+    extended: true,
+  })
+)
 
 // init db
 
@@ -18,13 +24,7 @@ checkOverload()
 
 // init routes
 
-app.get("/", (req, res, next) => {
-  const strCompress = "Hellooooo!!"
-  return res.status(500).json({
-    message: "Welcome!!!",
-    metadata: strCompress.repeat(10000),
-  })
-})
+app.use(require("./routes"))
 
 //handle error
 
