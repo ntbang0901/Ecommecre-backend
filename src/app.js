@@ -4,6 +4,7 @@ const morgan = require("morgan")
 const helmet = require("helmet")
 const compression = require("compression")
 const { checkOverload } = require("./helpers/check.connect")
+const { Api404Error } = require("./core/error.response")
 const app = express()
 
 // init middlewares
@@ -26,6 +27,21 @@ checkOverload()
 
 app.use(require("./routes"))
 
-//handle error
+//handling error
+
+app.use((req, res, next) => {
+  const error = new Api404Error("Resource not found")
+  next(error)
+})
+
+app.use((error, req, res, next) => {
+  const statusCode = error.status || 500
+
+  return res.status(statusCode).json({
+    status: "error",
+    error: statusCode,
+    message: error.message || "Internal Server Error",
+  })
+})
 
 module.exports = app
