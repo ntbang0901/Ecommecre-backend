@@ -5,8 +5,8 @@ const { apiKey, permission, asyncHandler } = require("../auth/checkAuth")
 const router = express.Router()
 
 // check api key
-router.use(asyncHandler(apiKey))
-router.use(asyncHandler(permission("1111")))
+router.use(apiKey)
+router.use(permission("0000"))
 
 // check permissions
 

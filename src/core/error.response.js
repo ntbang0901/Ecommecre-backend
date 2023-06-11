@@ -45,7 +45,17 @@ class Api403Error extends ErrorResponse {
   }
 }
 
+class Api401rror extends ErrorResponse {
+  constructor(
+    message = ReasonPhrases.UNAUTHORIZED,
+    statusCode = StatusCodes.UNAUTHORIZED
+  ) {
+    super(message, statusCode)
+  }
+}
+
 module.exports = {
+  Api401rror,
   Api409Error,
   Api404Error,
   Api400Error,

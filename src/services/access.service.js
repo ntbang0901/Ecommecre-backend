@@ -1,10 +1,10 @@
 const shopModel = require("../models/shop.model")
 const bcrypt = require("bcrypt")
-const crypto = require("crypto")
 const KeyTokenService = require("./keyToken.service")
 const { createTokenPair } = require("../auth/authUtils")
-const { getInfoData } = require("../utils")
-const { Api400Error } = require("../core/error.response")
+const { getInfoData, generateKey } = require("../utils")
+const { Api400Error, Api401rror } = require("../core/error.response")
+const { findByEmail } = require("./shop.service")
 
 const RoleShop = {
   SHOP: "SHOP",
@@ -14,6 +14,52 @@ const RoleShop = {
 }
 
 class AccessService {
+  /*
+      1 - check email db
+      2 - match password
+      3 - create AT vs FR and save
+      4 - generate token
+      5 - get data return login
+  */
+
+  static login = async ({ email, password, refreshToken = null }) => {
+    // 1-
+    const foundShop = await findByEmail({ email })
+    if (!foundShop) throw new Api400Error("Shop not Registered")
+
+    // 2
+    const match = bcrypt.compare(password, foundShop.password)
+    if (!match) throw Api401rror("Authentication error")
+
+    // 3- create publuckey and privateKey
+    const { publicKey, privateKey } = generateKey()
+
+    // 4 - generate tokens
+
+    const { _id: userId } = foundShop
+
+    const tokens = await createTokenPair(
+      { userId, email },
+      publicKey,
+      privateKey
+    )
+
+    await KeyTokenService.createKeyToken({
+      userId,
+      publicKey,
+      privateKey,
+      refreshToken: tokens.refreshToken,
+    })
+
+    return {
+      shop: getInfoData({
+        fields: ["_id", "name", "email"],
+        object: foundShop,
+      }),
+      tokens,
+    }
+  }
+
   static signUp = async ({ name, email, password }) => {
     //step 1: check email exists ??
     const hodelShop = await shopModel.findOne({ email }).lean()
@@ -50,8 +96,7 @@ class AccessService {
       //  })
 
       // created privateKey , publucKey level 0 1 2
-      const publicKey = crypto.randomBytes(64).toString("hex")
-      const privateKey = crypto.randomBytes(64).toString("hex")
+      const { publicKey, privateKey } = generateKey()
 
       console.log({ privateKey, publicKey })
       //save colection KeyStore

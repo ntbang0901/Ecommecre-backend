@@ -6,7 +6,17 @@ Content-Type: application/json
 x-api-key:1386414026c7468288e88a3b8cbfc58df035c056f7b9b581bd5e2d898635e0577b5d2bebc8a496bf2a3494fa26b89686b68253660662646c746c76b48a8e7eef
 
 {
-    "name":"Shop NTBANG4",
-    "email":"example4@example.com",
+    "name":"Shop NTBANG51",
+    "email":"example51@example.com",
+    "password":"123"
+}
+
+### login
+POST {{url_dev}}/shops/signinn
+Content-Type: application/json
+x-api-key:1386414026c7468288e88a3b8cbfc58df035c056f7b9b581bd5e2d898635e0577b5d2bebc8a496bf2a3494fa26b89686b68253660662646c746c76b48a8e7eef
+
+{
+    "email":"example51@example.com",
     "password":"123"
 }

@@ -9,35 +9,44 @@ const HEADER = {
 }
 
 const apiKey = async (req, res, next) => {
-  const key = req.headers[HEADER.API_KEY]?.toString()
-  if (!key) {
-    throw new Api403Error("Forbidden error")
-  }
+  try {
+    const key = req.headers[HEADER.API_KEY]?.toString()
+    if (!key) {
+      return res.status(403).json({
+        message: "Forbidden Error",
+      })
+    }
+    // check objKey
+    const objKey = await findById(key)
+    if (!objKey) {
+      return res.status(403).json({
+        message: "Forbidden Error",
+      })
+    }
 
-  // check objKey
-  const objKey = await findById(key)
-  if (!objKey) {
-    throw new Api403Error("Forbidden error")
-  }
+    req.objKey = objKey
 
-  req.objKey = objKey
-  return next()
+    return next()
+  } catch (error) {}
 }
 
-const permission = (permission) => {
+const permission = (permissions) => {
   return (req, res, next) => {
-    console.log(req.objKey)
-
     if (!req.objKey.permissions) {
-      throw new Api403Error("Permission denied")
+      return res.status(403).json({
+        message: "Permission denied",
+      })
     }
 
-    console.log("Permissions::", req.objKey.permissions)
+    console.log("permissions::", req.objKey.permissions)
+    const validPermission = req.objKey.permissions.includes(permissions)
 
-    const validPermission = req.objKey.permissions.includes(permission)
     if (!validPermission) {
-      throw new Api403Error("Permission denied")
+      return res.status(403).json({
+        message: "Permission denied",
+      })
     }
+
     return next()
   }
 }

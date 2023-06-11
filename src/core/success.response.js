@@ -41,4 +41,5 @@ class CREATED extends SussessResponse {
 module.exports = {
   OK,
   CREATED,
+  SussessResponse,
 }
