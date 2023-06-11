@@ -83,8 +83,6 @@
 
 ### Handler auth
 
-    https://github.com/madhums/node-express-mongoose-demo.git
-
 ### Api key
 
     `Lưu trữ key cung cấp cho các đối tác được truy cập vào hệ thống`
@@ -95,5 +93,5 @@
 
 ### Fulltext search in mongoDB
 
-    [https://anonystick.com/blog-developer/full-text-search-mongodb-chi-mot-bai-viet-khong-can-nhieu-2022012063033379]
+    https://anonystick.com/blog-developer/full-text-search-mongodb-chi-mot-bai-viet-khong-can-nhieu-2022012063033379
 
