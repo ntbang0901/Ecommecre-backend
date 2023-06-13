@@ -1,9 +1,13 @@
 const shopModel = require("../models/shop.model")
 const bcrypt = require("bcrypt")
 const KeyTokenService = require("./keyToken.service")
-const { createTokenPair } = require("../auth/authUtils")
+const { createTokenPair, verifyJwt } = require("../auth/authUtils")
 const { getInfoData, generateKey } = require("../utils")
-const { Api400Error, Api401rror } = require("../core/error.response")
+const {
+  Api400Error,
+  Api401rror,
+  Api403Error,
+} = require("../core/error.response")
 const { findByEmail } = require("./shop.service")
 
 const RoleShop = {
@@ -14,6 +18,63 @@ const RoleShop = {
 }
 
 class AccessService {
+  /*
+      Check token used
+  */
+
+  static handlerRefreshToken = async ({ refreshToken }) => {
+    // check xem token đã được sử dụng chưa
+    const foundToken = await KeyTokenService.findByRefreshTokenUsed(
+      refreshToken
+    )
+    console.log(foundToken)
+    // nếu có
+    if (foundToken) {
+      // decode xem user nao`
+      const { userId, email } = await verifyJwt(
+        refreshToken,
+        foundToken.privateKey
+      )
+      console.log(`1--`, { userId, email })
+      //xoá tất cả token strong keyStore
+      await KeyTokenService.deleteKeyById(userId)
+      throw new Api403Error("Something wrong happened !! please relogin")
+    }
+
+    const holderToken = await KeyTokenService.findByRefreshToke(refreshToken)
+    if (!holderToken) throw new Api401rror("Shop not registered 1 ")
+
+    console.log(holderToken)
+    //verify Token
+    const { userId, email } = await verifyJwt(
+      refreshToken,
+      holderToken.privateKey
+    )
+    console.log(`2--`, { userId, email })
+    //check userId
+    const foundShop = await findByEmail({ email })
+    if (!foundShop) throw new Api401rror("Shop not registered 2")
+
+    const tokens = await createTokenPair(
+      { userId, email },
+      holderToken.publicKey,
+      holderToken.privateKey
+    )
+    await holderToken.updateOne({
+      $set: {
+        refreshToken: tokens.refreshToken,
+      },
+      $addToSet: {
+        refreshTokensUsed: refreshToken,
+      },
+    })
+
+    return {
+      user: { userId, email },
+      tokens,
+    }
+  }
+
   static logout = async (keyStore) => {
     const delKey = await KeyTokenService.removeKeyById(keyStore._id)
     console.log({ delKey })
@@ -103,11 +164,12 @@ class AccessService {
 
       // created privateKey , publucKey level 0 1 2
       const { publicKey, privateKey } = generateKey()
+      const { _id: userId } = newShop
 
       console.log({ privateKey, publicKey })
       //save colection KeyStore
       const keyStore = await KeyTokenService.createKeyToken({
-        userId: newShop._id,
+        userId,
         publicKey,
         privateKey,
       })
@@ -132,7 +194,7 @@ class AccessService {
 
       //level 0 1 2
       const tokens = await createTokenPair(
-        { userId: newShop._id, email },
+        { userId, email },
         publicKey,
         privateKey
       )

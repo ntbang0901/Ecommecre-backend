@@ -1,7 +1,11 @@
 "use strict"
 
 const JWT = require("jsonwebtoken")
-const { Api401rror, Api404Error } = require("../core/error.response")
+const {
+  Api401rror,
+  Api404Error,
+  Api400Error,
+} = require("../core/error.response")
 const asyncHandler = require("../helpers/asyncHandler")
 
 //service
@@ -36,7 +40,7 @@ const createTokenPair = async (payload, publicKey, privateKey) => {
       expiresIn: "7 days",
     })
 
-    JWT.verify(accessToken, publicKey, (err, decode) => {
+    verifyJwt(accessToken, publicKey, (err, decode) => {
       if (err) {
         console.log(`error verify::`, err)
       } else {
@@ -62,6 +66,7 @@ const createTokenPair = async (payload, publicKey, privateKey) => {
     */
 
 const authentication = asyncHandler(async (req, res, next) => {
+  console.log(req.url)
   // 1 - check userId
   const userId = req.headers[HEADER.CLIENT_ID]
   if (!userId) throw new Api401rror("Invalid Request")
@@ -70,12 +75,20 @@ const authentication = asyncHandler(async (req, res, next) => {
   if (!keyStore) throw new Api404Error("Not found keyStore")
 
   // 2 - get ACCESS_TOKEN
-  const accessToken = req.headers[HEADER.AUTHORIZATION]
+  const accessToken = req.headers[HEADER.AUTHORIZATION]?.toString()
   if (!accessToken) throw new Api401rror("Invalid Request")
 
   try {
     // 3- verify token
-    const decodeUser = JWT.verify(accessToken, keyStore.publicKey)
+    const decodeUser = JWT.verify(
+      accessToken,
+      keyStore.publicKey,
+      (err, decode) => {
+        if (err) throw new Api401rror("Invalid Request")
+        return decode
+      }
+    )
+
     //5 - check keystore with this userId
 
     if (userId !== decodeUser.userId) throw new Api401rror("Invalid UserId")
@@ -88,7 +101,12 @@ const authentication = asyncHandler(async (req, res, next) => {
   }
 })
 
+const verifyJwt = async (token, keySecrect) => {
+  return await JWT.verify(token, keySecrect)
+}
+
 module.exports = {
   createTokenPair,
   authentication,
+  verifyJwt,
 }
