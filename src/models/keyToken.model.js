@@ -10,7 +10,7 @@ const KeyTokenSchema = new Schema(
     user: {
       type: Schema.Types.ObjectId,
       require: true,
-      ref: "shop",
+      ref: "Shop",
     },
     privateKey: {
       type: String,

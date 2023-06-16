@@ -29,7 +29,7 @@ const productSchema = new Schema(
     },
     product_shop: {
       type: Schema.Types.ObjectId,
-      ref: "shop",
+      ref: "Shop",
     },
     product_attributes: {
       type: Schema.Types.Mixed,
@@ -52,11 +52,30 @@ const clothingSchema = new Schema(
     meterial: String,
     product_shop: {
       type: Schema.Types.ObjectId,
-      ref: "shop",
+      ref: "Shop",
     },
   },
   {
     collection: "clothes",
+    timestamps: true,
+  }
+)
+
+const furnitureSchema = new Schema(
+  {
+    brand: {
+      type: String,
+      required: true,
+    },
+    size: String,
+    meterial: String,
+    product_shop: {
+      type: Schema.Types.ObjectId,
+      ref: "Shop",
+    },
+  },
+  {
+    collection: "furnitures",
     timestamps: true,
   }
 )
@@ -71,7 +90,7 @@ const electronicSchema = new Schema(
     color: String,
     product_shop: {
       type: Schema.Types.ObjectId,
-      ref: "shop",
+      ref: "Shop",
     },
   },
   {
@@ -84,4 +103,5 @@ module.exports = {
   product: model(DOCUMENT_NAME, productSchema),
   clothing: model("Clothing", clothingSchema),
   electronic: model("Electronic", electronicSchema),
+  furniture: model("Furniture", furnitureSchema),
 }

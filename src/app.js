@@ -44,4 +44,8 @@ app.use((error, req, res, next) => {
   })
 })
 
+// init factory
+const configFactories = require("./factories")
+console.log(configFactories)
+
 module.exports = app
