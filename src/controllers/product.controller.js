@@ -6,7 +6,10 @@ class AccessController {
     const { product_type } = req.body
     new SussessResponse({
       message: "create new Product success!!",
-      metadata: await ProductService.createProduct(product_type, req.body),
+      metadata: await ProductService.createProduct(product_type, {
+        ...req.body,
+        product_shop: req.user.userId,
+      }),
     }).send(res)
   }
 }

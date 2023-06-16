@@ -155,7 +155,7 @@ const authenticationV2 = asyncHandler(async (req, res, next) => {
 
     if (userId !== decodeUser.userId) throw new Api401rror("Invalid UserId")
     req.keyStore = keyStore
-
+    req.user = decodeUser
     // 6 - OK all return next
     return next()
   } catch (error) {

@@ -24,7 +24,7 @@ class ProductFactory {
     product_description,
     product_price
     product_quantity
-    product_typeronics
+    product_type
     product_shop
     product_attributes
 */
@@ -51,17 +51,20 @@ class Product {
   }
 
   // create new product
-  async createProduct() {
-    return await product.create(this)
+  async createProduct(product_id) {
+    return await product.create({ ...this, _id: product_id })
   }
 }
 
 // define class for different product types Clothing
 class Cloting extends Product {
   async createProduct() {
-    const newClothing = await clothing.create(this.product_attributes)
+    const newClothing = await clothing.create({
+      ...this.product_attributes,
+      product_shop: this.product_shop,
+    })
     if (!newClothing) throw new Api400Error("create new cloting error")
-    const newProduct = await super.createProduct(this)
+    const newProduct = await super.createProduct(newClothing._id)
     if (!newProduct) throw new Api400Error("create new product error")
 
     return newProduct
@@ -71,9 +74,12 @@ class Cloting extends Product {
 // define class for different product types Electronic
 class Electronics extends Product {
   async createProduct() {
-    const newElictronic = await electronic.create(this.product_attributes)
+    const newElictronic = await electronic.create({
+      ...this.product_attributes,
+      product_shop: this.product_shop,
+    })
     if (!newElictronic) throw new Api400Error("create new electronic error")
-    const newProduct = await super.createProduct(this)
+    const newProduct = await super.createProduct(newElictronic._id)
     if (!newProduct) throw new Api400Error("create new product error")
 
     return newProduct
