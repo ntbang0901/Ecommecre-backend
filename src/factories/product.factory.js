@@ -1,5 +1,16 @@
 const { product } = require("../models/product.model")
 
+/*
+    product_name
+    product_thumb
+    product_description,
+    product_price
+    product_quantity
+    product_type
+    product_shop
+    product_attributes
+*/
+// define base product class
 class Product {
   constructor({
     product_name,

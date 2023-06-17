@@ -102,6 +102,7 @@ const authentication = asyncHandler(async (req, res, next) => {
 })
 
 const authenticationV2 = asyncHandler(async (req, res, next) => {
+  console.log("check")
   // 1 - check userId
   const userId = req.headers[HEADER.CLIENT_ID]
   if (!userId) throw new Api401rror("Invalid Request")

@@ -25,8 +25,9 @@
     - dotenv": "^16.0.3",: cau hinh doc file enviroment .env
     - helmet": "^6.0.1",: Che dau thong tin stack phia server, thong tin rieng tu...
     - jsonwebtoken": "^9.0.0",: thu vien jwt
+    - slugify": "^1.6.6",: convert text to slug, example: ao khoac -> ao-khoac
     - lodash": "^4.17.21",
-    - mongoose": "^6.9.2",: connect mongodb
+    - mongoose": "^7.2.2",: connect mongodb
     - morgan": "^1.10.0",: thu vien in ra cac log khi mot nguoi dung request xuong
     - nodemon
     - redis: using cache redis
