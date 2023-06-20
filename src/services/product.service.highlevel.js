@@ -7,6 +7,8 @@ const {
     findAllPublishForShop,
     unPublishProductByShop,
     searchPeoductByUser,
+    findAllProducts,
+    findProduct,
 } = require("../models/repositories/product.repo")
 
 // define Factory class for create product
@@ -23,6 +25,15 @@ class ProductService {
             throw new Api400Error(`Invalid product types ${type}`)
 
         return new productClass(payload).createProduct()
+    }
+
+    static async updateProduct(type, productId, payload) {
+        console.log(ProductService.productRegistry)
+        const productClass = ProductService.productRegistry[type]
+        if (!productClass)
+            throw new Api400Error(`Invalid product types ${type}`)
+
+        return new productClass(payload).updateProduct(productId)
     }
 
     // PUT //
@@ -50,6 +61,28 @@ class ProductService {
 
     static getListSearchProducts = async ({ keySearch }) => {
         return await searchPeoductByUser({ keySearch })
+    }
+
+    static findAllProducts = async ({
+        limit = 50,
+        sort = "ctime",
+        page = 1,
+        filter = { isPublished: true },
+    }) => {
+        return await findAllProducts({
+            limit,
+            sort,
+            page,
+            filter,
+            select: ["product_name", "product_price", "product_thumb"],
+        })
+    }
+
+    static findProduct = async ({ product_id }) => {
+        return await findProduct({
+            product_id,
+            unSelect: ["__v", "product_variations"],
+        })
     }
 }
 

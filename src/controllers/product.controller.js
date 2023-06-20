@@ -22,6 +22,20 @@ class AccessController {
         }).send(res)
     }
 
+    updateProduct = async (req, res, next) => {
+        new SussessResponse({
+            message: "create new Product success!!",
+            metadata: await ProductServiceV2.updateProduct(
+                req.body.product_type,
+                req.params.productId,
+                {
+                    ...req.body,
+                    product_shop: req.user.userId,
+                }
+            ),
+        }).send(res)
+    }
+
     publishProductByShop = async (req, res, next) => {
         new SussessResponse({
             message: "publishProductByShop success!!",
@@ -73,6 +87,22 @@ class AccessController {
             message: "get list search Product success!!",
             metadata: await ProductServiceV2.getListSearchProducts({
                 keySearch: req.params.keySearch,
+            }),
+        }).send(res)
+    }
+
+    findAllProducts = async (req, res, next) => {
+        new SussessResponse({
+            message: "get all Products success!!",
+            metadata: await ProductServiceV2.findAllProducts(req.query),
+        }).send(res)
+    }
+
+    findProduct = async (req, res, next) => {
+        new SussessResponse({
+            message: "get Product success!!",
+            metadata: await ProductServiceV2.findProduct({
+                product_id: req.params.product_id,
             }),
         }).send(res)
     }

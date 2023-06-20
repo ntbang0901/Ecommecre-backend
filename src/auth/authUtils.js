@@ -2,9 +2,9 @@
 
 const JWT = require("jsonwebtoken")
 const {
-  Api401rror,
-  Api404Error,
-  Api400Error,
+    Api401rror,
+    Api404Error,
+    Api400Error,
 } = require("../core/error.response")
 const asyncHandler = require("../helpers/asyncHandler")
 
@@ -12,48 +12,49 @@ const asyncHandler = require("../helpers/asyncHandler")
 const { findByUserId } = require("../services/keyToken.service")
 
 const HEADER = {
-  API_KEY: "x-api-key",
-  CLIENT_ID: "x-client-id",
-  AUTHORIZATION: "authorization",
-  REFRESHTOKEN: "x-rtoken-id",
+    API_KEY: "x-api-key",
+    CLIENT_ID: "x-client-id",
+    AUTHORIZATION: "authorization",
+    REFRESHTOKEN: "x-rtoken-id",
+    BEARER: "Bearer ",
 }
 
 const createTokenPair = async (payload, publicKey, privateKey) => {
-  try {
-    // access token
-    // level xxx
-    // const accessToken = await JWT.sign(payload, privateKey, {
-    //   algorithm: "RS256",
-    //   expiresIn: "2 days",
-    // })
+    try {
+        // access token
+        // level xxx
+        // const accessToken = await JWT.sign(payload, privateKey, {
+        //   algorithm: "RS256",
+        //   expiresIn: "2 days",
+        // })
 
-    // const refreshToken = await JWT.sign(payload, privateKey, {
-    //   algorithm: "RS256",
-    //   expiresIn: "7 days",
-    // })
+        // const refreshToken = await JWT.sign(payload, privateKey, {
+        //   algorithm: "RS256",
+        //   expiresIn: "7 days",
+        // })
 
-    // level 0 1 2
-    const accessToken = await JWT.sign(payload, publicKey, {
-      expiresIn: "2 days",
-    })
+        // level 0 1 2
+        const accessToken = await JWT.sign(payload, publicKey, {
+            expiresIn: "2 days",
+        })
 
-    const refreshToken = await JWT.sign(payload, privateKey, {
-      expiresIn: "7 days",
-    })
+        const refreshToken = await JWT.sign(payload, privateKey, {
+            expiresIn: "7 days",
+        })
 
-    verifyJwt(accessToken, publicKey, (err, decode) => {
-      if (err) {
-        console.log(`error verify::`, err)
-      } else {
-        console.log(`decode verify::`, decode)
-      }
-    })
+        verifyJwt(accessToken, publicKey, (err, decode) => {
+            if (err) {
+                console.log(`error verify::`, err)
+            } else {
+                console.log(`decode verify::`, decode)
+            }
+        })
 
-    return {
-      accessToken,
-      refreshToken,
-    }
-  } catch (error) {}
+        return {
+            accessToken,
+            refreshToken,
+        }
+    } catch (error) {}
 }
 
 // authentication
@@ -67,110 +68,118 @@ const createTokenPair = async (payload, publicKey, privateKey) => {
     */
 
 const authentication = asyncHandler(async (req, res, next) => {
-  // 1 - check userId
-  const userId = req.headers[HEADER.CLIENT_ID]
-  if (!userId) throw new Api401rror("Invalid Request")
+    // 1 - check userId
+    const userId = req.headers[HEADER.CLIENT_ID]
+    if (!userId) throw new Api401rror("Invalid Request")
 
-  const keyStore = await findByUserId(userId)
-  if (!keyStore) throw new Api404Error("Not found keyStore")
+    const keyStore = await findByUserId(userId)
+    if (!keyStore) throw new Api404Error("Not found keyStore")
 
-  // 2 - get ACCESS_TOKEN
-  const accessToken = req.headers[HEADER.AUTHORIZATION]?.toString()
-  if (!accessToken) throw new Api401rror("Invalid Request")
-
-  try {
-    // 3- verify token
-    const decodeUser = JWT.verify(
-      accessToken,
-      keyStore.publicKey,
-      (err, decode) => {
-        if (err) throw new Api401rror("Invalid Request")
-        return decode
-      }
+    // 2 - get ACCESS_TOKEN
+    const accessToken = extractToken(
+        req.headers[HEADER.AUTHORIZATION?.toString()]
     )
+    if (!accessToken) throw new Api401rror("Invalid Request")
 
-    //5 - check keystore with this userId
+    try {
+        // 3- verify token
+        const decodeUser = JWT.verify(
+            accessToken,
+            keyStore.publicKey,
+            (err, decode) => {
+                if (err) throw new Api401rror("Invalid Request")
+                return decode
+            }
+        )
 
-    if (userId !== decodeUser.userId) throw new Api401rror("Invalid UserId")
-    req.keyStore = keyStore
+        //5 - check keystore with this userId
 
-    // 6 - OK all return next
-    return next()
-  } catch (error) {
-    throw error
-  }
+        if (userId !== decodeUser.userId) throw new Api401rror("Invalid UserId")
+        req.keyStore = keyStore
+
+        // 6 - OK all return next
+        return next()
+    } catch (error) {
+        throw error
+    }
 })
 
 const authenticationV2 = asyncHandler(async (req, res, next) => {
-  console.log("check")
-  // 1 - check userId
-  const userId = req.headers[HEADER.CLIENT_ID]
-  if (!userId) throw new Api401rror("Invalid Request")
+    console.log("check")
+    // 1 - check userId
+    const userId = req.headers[HEADER.CLIENT_ID]
+    if (!userId) throw new Api401rror("Invalid Request")
 
-  const keyStore = await findByUserId(userId)
-  if (!keyStore) throw new Api404Error("Not found keyStore")
+    const keyStore = await findByUserId(userId)
+    if (!keyStore) throw new Api404Error("Not found keyStore")
 
-  const refreshToken = req.headers[HEADER.REFRESHTOKEN]
-  if (refreshToken && req.url.includes("refreshToken")) {
-    try {
-      // 3- verify token
-      const decodeUser = JWT.verify(
-        refreshToken,
-        keyStore.privateKey,
-        (err, decode) => {
-          if (err) throw new Api401rror("Invalid Request")
-          return decode
+    const refreshToken = req.headers[HEADER.REFRESHTOKEN]
+    if (refreshToken && req.url.includes("refreshToken")) {
+        try {
+            // 3- verify token
+            const decodeUser = JWT.verify(
+                refreshToken,
+                keyStore.privateKey,
+                (err, decode) => {
+                    if (err) throw new Api401rror("Invalid Request")
+                    return decode
+                }
+            )
+
+            //5 - check keystore with this userId
+
+            if (userId !== decodeUser.userId)
+                throw new Api401rror("Invalid UserId")
+            req.keyStore = keyStore
+            req.user = decodeUser
+            req.refreshToken = refreshToken
+
+            // 6 - OK all return next
+            return next()
+        } catch (error) {
+            throw error
         }
-      )
-
-      //5 - check keystore with this userId
-
-      if (userId !== decodeUser.userId) throw new Api401rror("Invalid UserId")
-      req.keyStore = keyStore
-      req.user = decodeUser
-      req.refreshToken = refreshToken
-
-      // 6 - OK all return next
-      return next()
-    } catch (error) {
-      throw error
     }
-  }
 
-  // 2 - get ACCESS_TOKEN
-  const accessToken = req.headers[HEADER.AUTHORIZATION]
-  if (!accessToken) throw new Api401rror("Invalid Request")
+    // 2 - get ACCESS_TOKEN
+    const accessToken = extractToken(req.headers[HEADER.AUTHORIZATION])
+    if (!accessToken) throw new Api401rror("Invalid Request")
 
-  try {
-    // 3- verify token
-    const decodeUser = JWT.verify(
-      accessToken,
-      keyStore.publicKey,
-      (err, decode) => {
-        if (err) throw new Api401rror("Invalid Request")
-        return decode
-      }
-    )
+    try {
+        // 3- verify token
+        const decodeUser = JWT.verify(
+            accessToken,
+            keyStore.publicKey,
+            (err, decode) => {
+                if (err) throw new Api401rror("Invalid Request")
+                return decode
+            }
+        )
 
-    //5 - check keystore with this userId
+        //5 - check keystore with this userId
 
-    if (userId !== decodeUser.userId) throw new Api401rror("Invalid UserId")
-    req.keyStore = keyStore
-    req.user = decodeUser
-    // 6 - OK all return next
-    return next()
-  } catch (error) {
-    throw error
-  }
+        if (userId !== decodeUser.userId) throw new Api401rror("Invalid UserId")
+        req.keyStore = keyStore
+        req.user = decodeUser
+        // 6 - OK all return next
+        return next()
+    } catch (error) {
+        throw error
+    }
 })
 
 const verifyJwt = async (token, keySecrect) => {
-  return await JWT.verify(token, keySecrect)
+    return await JWT.verify(token, keySecrect)
+}
+
+const extractToken = (token) => {
+    if (!token) return ""
+    return token.replace(HEADER.BEARER, "")
 }
 
 module.exports = {
-  createTokenPair,
-  authentication,
-  authenticationV2,
-  verifyJwt,
+    createTokenPair,
+    authentication,
+    authenticationV2,
+    verifyJwt,
 }
