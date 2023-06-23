@@ -1,6 +1,5 @@
 const { CREATED, SussessResponse } = require("../core/success.response")
-const ProductService = require("../services/product.service")
-const ProductServiceV2 = require("../services/product.service.highlevel")
+const ProductServiceV2 = require("../services/product.service")
 
 class AccessController {
     createProduct = async (req, res, next) => {

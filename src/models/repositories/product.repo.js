@@ -73,6 +73,7 @@ const findAllProducts = async ({ limit, sort, page, filter, select }) => {
 
     return products
 }
+
 const findProduct = async ({ product_id, unSelect }) => {
     try {
         return await product

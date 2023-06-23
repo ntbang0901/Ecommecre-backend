@@ -1,6 +1,7 @@
 "use strict"
 const _ = require("lodash")
 const crypto = require("crypto")
+const { Types } = require("mongoose")
 
 const generateKey = () => {
     const publicKey = crypto.randomBytes(64).toString("hex")
@@ -55,6 +56,8 @@ const updateNestedObjectParser = (obj) => {
     return final
 }
 
+const convertToObjectIdMongodb = (id) => new Types.ObjectId(id)
+
 module.exports = {
     getInfoData,
     generateKey,
@@ -62,4 +65,5 @@ module.exports = {
     unGetSelectData,
     removeUndefinedObject,
     updateNestedObjectParser,
+    convertToObjectIdMongodb,
 }

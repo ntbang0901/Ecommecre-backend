@@ -27,7 +27,7 @@ const discountSchema = new Schema(
             required: true,
             enum: ["all", "specific"],
         },
-        discount_product_ids: { type: Array, default: [] },
+        discount_product_ids: { type: Array, default: [] }, // số sảng phẩm được áp dụng
     },
     {
         collection: COLECTION_NAME,
