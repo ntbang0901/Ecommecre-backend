@@ -2,12 +2,16 @@
 
 const { Api400Error, Api404Error } = require("../core/error.response")
 const discountModel = require("../models/discount.model")
+const { product } = require("../models/product.model")
 const {
     updateDiscountById,
     checkDiscountExists,
     findAllDiscountCodesUnSelect,
 } = require("../models/repositories/discount.repo")
-const { findAllProducts } = require("../models/repositories/product.repo")
+const {
+    findAllProducts,
+    getProductById,
+} = require("../models/repositories/product.repo")
 const {
     convertToObjectIdMongodb,
     removeUndefinedObject,
@@ -234,6 +238,18 @@ class DiscountService {
         ) {
             throw new Api404Error("Discount code has not expired")
         }
+
+        products = await Promise.all(
+            products.map(async (product) => {
+                const _product = await getProductById(product.productId)
+                return {
+                    ...product,
+                    price: _product.product_price,
+                }
+            })
+        )
+
+        console.log(products)
 
         // check xem có set giá trị tối thiểu hay chưa
         let totalOrder = 0

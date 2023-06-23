@@ -106,6 +106,14 @@ const queryProduct = async ({ query, limit, skip }) => {
         .exec()
 }
 
+const getProductById = async (productId) => {
+    try {
+        return await product.findOne({ _id: productId }).lean()
+    } catch (error) {
+        throw new Api400Error("product not found")
+    }
+}
+
 module.exports = {
     findAllDraftsForShop,
     publishProductByShop,
@@ -115,4 +123,5 @@ module.exports = {
     findAllProducts,
     findProduct,
     updateProductById,
+    getProductById,
 }

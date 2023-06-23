@@ -1,10 +1,10 @@
-const { CREATED, SussessResponse } = require("../core/success.response")
+const { CREATED, SuccessResponse } = require("../core/success.response")
 const ProductServiceV2 = require("../services/product.service")
 
 class AccessController {
     createProduct = async (req, res, next) => {
         const { product_type } = req.body
-        // new SussessResponse({
+        // new SuccessResponse({
         //   message: "create new Product success!!",
         //   metadata: await ProductService.createProduct(product_type, {
         //     ...req.body,
@@ -12,7 +12,7 @@ class AccessController {
         //   }),
         // }).send(res)
 
-        new SussessResponse({
+        new SuccessResponse({
             message: "create new Product success!!",
             metadata: await ProductServiceV2.createProduct(product_type, {
                 ...req.body,
@@ -22,7 +22,7 @@ class AccessController {
     }
 
     updateProduct = async (req, res, next) => {
-        new SussessResponse({
+        new SuccessResponse({
             message: "create new Product success!!",
             metadata: await ProductServiceV2.updateProduct(
                 req.body.product_type,
@@ -36,7 +36,7 @@ class AccessController {
     }
 
     publishProductByShop = async (req, res, next) => {
-        new SussessResponse({
+        new SuccessResponse({
             message: "publishProductByShop success!!",
             metadata: await ProductServiceV2.publishProductByShop({
                 product_shop: req.user.userId,
@@ -46,7 +46,7 @@ class AccessController {
     }
 
     unPublishProductByShop = async (req, res, next) => {
-        new SussessResponse({
+        new SuccessResponse({
             message: "unPublishProductByShop success!!",
             metadata: await ProductServiceV2.unPublishProductByShop({
                 product_shop: req.user.userId,
@@ -64,7 +64,7 @@ class AccessController {
      * @return { JSON }
      */
     getAllDraftsForShop = async (req, res, next) => {
-        new SussessResponse({
+        new SuccessResponse({
             message: "get list Draft success!!",
             metadata: await ProductServiceV2.findAllDraftsForShop({
                 product_shop: req.user.userId,
@@ -73,7 +73,7 @@ class AccessController {
     }
 
     getAllPublishForShop = async (req, res, next) => {
-        new SussessResponse({
+        new SuccessResponse({
             message: "get list Publish success!!",
             metadata: await ProductServiceV2.findAllPublishForShop({
                 product_shop: req.user.userId,
@@ -82,7 +82,7 @@ class AccessController {
     }
 
     getListSearchProduct = async (req, res, next) => {
-        new SussessResponse({
+        new SuccessResponse({
             message: "get list search Product success!!",
             metadata: await ProductServiceV2.getListSearchProducts({
                 keySearch: req.params.keySearch,
@@ -91,14 +91,14 @@ class AccessController {
     }
 
     findAllProducts = async (req, res, next) => {
-        new SussessResponse({
+        new SuccessResponse({
             message: "get all Products success!!",
             metadata: await ProductServiceV2.findAllProducts(req.query),
         }).send(res)
     }
 
     findProduct = async (req, res, next) => {
-        new SussessResponse({
+        new SuccessResponse({
             message: "get Product success!!",
             metadata: await ProductServiceV2.findProduct({
                 product_id: req.params.product_id,

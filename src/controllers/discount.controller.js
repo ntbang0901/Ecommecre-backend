@@ -1,4 +1,4 @@
-const { CREATED, SussessResponse } = require("../core/success.response")
+const { CREATED, SuccessResponse } = require("../core/success.response")
 const DiscountService = require("../services/discount.service")
 
 class DiscountController {
@@ -13,7 +13,7 @@ class DiscountController {
     }
 
     updateDiscountCode = async (req, res, next) => {
-        new SussessResponse({
+        new SuccessResponse({
             message: "DiscountCode updated",
             discountId: req.params.discountId,
             metadata: await DiscountService.updateDiscountCode(
@@ -34,7 +34,7 @@ class DiscountController {
      * @return { JSON }
      */
     getAllDiscountCodes = async (req, res, next) => {
-        new SussessResponse({
+        new SuccessResponse({
             message: "DiscountCode created",
             metadata: await DiscountService.getAllDiscountCodesByShop({
                 ...req.query,
@@ -45,7 +45,7 @@ class DiscountController {
 
     getAllDiscountCodesWithProducts = async (req, res, next) => {
         console.log(req.query)
-        new SussessResponse({
+        new SuccessResponse({
             message: "DiscountCode created",
             metadata: await DiscountService.getAllDiscountCodesWithProducts({
                 ...req.query,
@@ -54,7 +54,7 @@ class DiscountController {
     }
 
     getDiscountAmount = async (req, res, next) => {
-        new SussessResponse({
+        new SuccessResponse({
             message: "DiscountCode created",
             metadata: await DiscountService.getDiscountAmount({
                 ...req.body,
