@@ -7,39 +7,39 @@ const COLECTION_NAME = "Shops"
 
 // Declare the Schema of the Mongo model
 var shopSchema = new Schema(
-  {
-    name: {
-      type: String,
-      trim: true,
-      maxLenght: 150,
+    {
+        name: {
+            type: String,
+            trim: true,
+            maxLenght: 150,
+        },
+        email: {
+            type: String,
+            trim: true,
+            unique: true,
+        },
+        password: {
+            type: String,
+            required: true,
+        },
+        status: {
+            type: String,
+            enum: ["active", "inactive"],
+            default: "inactive",
+        },
+        verify: {
+            type: Schema.Types.Boolean,
+            default: false,
+        },
+        roles: {
+            type: Array,
+            default: [],
+        },
     },
-    email: {
-      type: String,
-      trim: true,
-      unique: true,
-    },
-    password: {
-      type: String,
-      required: true,
-    },
-    status: {
-      type: String,
-      enum: ["active", "inactive"],
-      default: "inactive",
-    },
-    verify: {
-      type: Schema.Types.Boolean,
-      default: false,
-    },
-    roles: {
-      type: Array,
-      default: [],
-    },
-  },
-  {
-    timestamps: true,
-    collection: COLECTION_NAME,
-  }
+    {
+        timestamps: true,
+        collection: COLECTION_NAME,
+    }
 )
 
 //Export the model

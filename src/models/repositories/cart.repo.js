@@ -1,5 +1,6 @@
 "use strict"
 
+const { convertToObjectIdMongodb } = require("../../utils")
 const { cart } = require("../cart.model")
 
 /// START REPO CART SERVICE ///
@@ -23,7 +24,7 @@ const updateUserCartQuantity = async ({ userId, product }) => {
     const { productId, quantity } = product
     const query = {
             cart_userId: userId,
-            "cart_products.productId": productId,
+            "cart_products.productId": convertToObjectIdMongodb(productId),
             cart_state: "active",
         },
         updateSet = {
@@ -41,7 +42,7 @@ const updateUserCartQuantity = async ({ userId, product }) => {
 
 const deleteUserCart = async ({ userId, productId }) => {
     const query = {
-            cart_userId: userId,
+            cart_userId: convertToObjectIdMongodb(userId),
             cart_state: "active",
         },
         updateSet = {
@@ -55,10 +56,37 @@ const deleteUserCart = async ({ userId, productId }) => {
 
     return deleteCart
 }
+
+const findCartById = async (cartId) => {
+    return await cart.findOne({
+        _id: convertToObjectIdMongodb(cartId),
+        cart_state: "active",
+    })
+}
+
+const removeProductInCart = async ({ userId, productIds }) => {
+    const query = {
+            cart_userId: convertToObjectIdMongodb(userId),
+            cart_state: "active",
+        },
+        updateSet = {
+            $pull: {
+                cart_products: {
+                    productId: { $in: productIds },
+                },
+            },
+        }
+    const deleteCart = await cart.updateOne(query, updateSet)
+
+    return deleteCart
+}
+
 /// END REPO CART SERVICE ///
 
 module.exports = {
     createUserCart,
     updateUserCartQuantity,
     deleteUserCart,
+    findCartById,
+    removeProductInCart,
 }

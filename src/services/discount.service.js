@@ -11,6 +11,7 @@ const {
 const {
     findAllProducts,
     getProductById,
+    checkProductByServer,
 } = require("../models/repositories/product.repo")
 const {
     convertToObjectIdMongodb,
@@ -239,15 +240,8 @@ class DiscountService {
             throw new Api404Error("Discount code has not expired")
         }
 
-        products = await Promise.all(
-            products.map(async (product) => {
-                const _product = await getProductById(product.productId)
-                return {
-                    ...product,
-                    price: _product.product_price,
-                }
-            })
-        )
+        // const checkProductServer = await checkProductByServer(products)
+        // if (!checkProductServer.length) throw new Api400Error("wrong")
 
         console.log(products)
 

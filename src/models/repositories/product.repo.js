@@ -110,8 +110,23 @@ const getProductById = async (productId) => {
     try {
         return await product.findOne({ _id: productId }).lean()
     } catch (error) {
-        throw new Api400Error("product not found")
+        return null
     }
+}
+
+const checkProductByServer = async (products) => {
+    return await Promise.all(
+        products.map(async (product) => {
+            const foundProduct = await getProductById(product.productId)
+            if (foundProduct) {
+                return {
+                    price: foundProduct.product_price,
+                    quantity: product.quantity,
+                    productId: product.productId,
+                }
+            }
+        })
+    )
 }
 
 module.exports = {
@@ -124,4 +139,5 @@ module.exports = {
     findProduct,
     updateProductById,
     getProductById,
+    checkProductByServer,
 }
