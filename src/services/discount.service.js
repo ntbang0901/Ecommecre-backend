@@ -18,6 +18,7 @@ const {
     removeUndefinedObject,
     updateNestedObjectParser,
 } = require("../utils")
+const DiscountBuilder = require("../validation/discount.validation")
 
 /*
     Discount Services
@@ -52,18 +53,8 @@ class DiscountService {
             max_uses_per_user,
         } = payload
 
-        console.log(new Date(start_date))
-
-        if (
-            new Date() < new Date(start_date) ||
-            new Date() > new Date(end_date)
-        ) {
-            throw new Api400Error("Discount code has not expired")
-        }
-
-        if (new Date(start_date) >= new Date(end_date)) {
-            throw new Api400Error("start_date must be before end_date")
-        }
+        const builder = new DiscountBuilder()
+        builder.checkExpiredDiscount(start_date, end_date)
 
         const foundDiscount = await checkDiscountExists({
             filter: {
@@ -73,9 +64,7 @@ class DiscountService {
             model: discountModel,
         })
 
-        if (foundDiscount && foundDiscount.discount_is_active) {
-            throw new Api400Error("Discount exists!")
-        }
+        builder.checkDiscountExists(foundDiscount)
 
         const newDiscount = await discountModel.create({
             discount_name: name,
@@ -131,9 +120,8 @@ class DiscountService {
             model: discountModel,
         })
 
-        if (!foundDiscount || !foundDiscount.discount_is_active) {
-            throw new Api404Error("Discount not exists")
-        }
+        const builder = new DiscountBuilder()
+        builder.checkDiscountNotExist(foundDiscount)
 
         const { discount_product_ids, discount_applies_to } = foundDiscount
         let products
@@ -216,7 +204,8 @@ class DiscountService {
             model: discountModel,
         })
 
-        if (!foundDiscount) throw new Api404Error("discount not exists")
+        const builder = new DiscountBuilder()
+        builder.checkDiscountNotExist(foundDiscount)
         const {
             discount_is_active,
             discount_max_uses,
@@ -229,16 +218,10 @@ class DiscountService {
             discount_value,
         } = foundDiscount
 
-        if (!discount_is_active) throw new Api404Error("Discount expired")
-
-        if (!discount_max_uses) throw new Api404Error("Discount are out")
-
-        if (
-            new Date() < new Date(discount_start_date) ||
-            new Date() > new Date(discount_end_date)
-        ) {
-            throw new Api404Error("Discount code has not expired")
-        }
+        builder
+            .checkIsActive(discount_is_active)
+            .checkMaxUsed(discount_max_uses)
+            .checkExpiredDiscount(discount_start_date, discount_end_date)
 
         // const checkProductServer = await checkProductByServer(products)
         // if (!checkProductServer.length) throw new Api400Error("wrong")

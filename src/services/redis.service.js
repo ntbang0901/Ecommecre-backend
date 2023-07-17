@@ -2,7 +2,7 @@
 
 const { promisify } = require("util")
 const redisClient = require("../configs/redis.config")
-const { setnx } = require("../utils/redis.util")
+const { setnx, del } = require("../utils/redis.util")
 
 const acquirelock = async (productId, quantity, cartId) => {
     const key = `lock_v2023_${productId}`
@@ -32,8 +32,7 @@ const acquirelock = async (productId, quantity, cartId) => {
 }
 
 const releaseLock = async (keylock) => {
-    const delAsyncKey = promisify(redisClient.del).bind(redisClient)
-    return await delAsyncKey(keylock)
+    return await del(keylock)
 }
 
 module.exports = {

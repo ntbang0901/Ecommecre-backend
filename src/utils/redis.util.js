@@ -26,6 +26,19 @@ const set = async (key, value) => {
     })
 }
 
+// delete key
+const del = async (key, value) => {
+    return new Promise((resolve, reject) => {
+        client.del(key, (err, data) => {
+            if (err) {
+                return reject(err)
+            }
+
+            resolve(data)
+        })
+    })
+}
+
 // set 1 lan duy nhat
 const setnx = async (key, value) => {
     return new Promise((resolve, reject) => {
@@ -101,4 +114,5 @@ module.exports = {
     expire,
     exists,
     ttl,
+    del,
 }

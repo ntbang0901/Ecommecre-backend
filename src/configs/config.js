@@ -26,10 +26,16 @@ const dev = {
     },
     redis: {
         enable: process.env.REDIS_ENABLE,
-        port: process.env.REDIS_PORT,
-        host: process.env.REDIS_HOST,
-        username: process.env.REDIS_USERNAME,
-        password: process.env.REDIS_PASSWORD,
+        port: process.env.DEV_REDIS_PORT,
+        host: process.env.DEV_REDIS_HOST,
+        username: process.env.DEV_REDIS_USERNAME,
+        password: process.env.DEV_REDIS_PASSWORD,
+    },
+    logger: {
+        discord: {
+            channelId: process.env.DISCORD_CHANNELID,
+            token: process.env.DISCORD_TOKEN,
+        },
     },
 }
 
@@ -41,6 +47,13 @@ const pro = {
         host: process.env.PRO_DB_HOST || "0.0.0.0",
         port: process.env.PRO_DB_PORT || 27017,
         name: process.env.PRO_DB_NAME || "shopPRO",
+    },
+    redis: {
+        enable: process.env.REDIS_ENABLE,
+        port: process.env.PRO_REDIS_PORT,
+        host: process.env.PRO_REDIS_HOST,
+        username: process.env.PRO_REDIS_USERNAME,
+        password: process.env.PRO_REDIS_PASSWORD,
     },
 }
 

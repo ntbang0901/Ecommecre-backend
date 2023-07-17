@@ -13,13 +13,16 @@ app.use(helmet())
 app.use(compression())
 app.use(express.json())
 app.use(
-  express.urlencoded({
-    extended: true,
-  })
+    express.urlencoded({
+        extended: true,
+    })
 )
 
+// test pub sub redis
+require("./tests/inventory.test")
+const productTest = require("./tests/product.test")
+productTest.purchaseProduct("product:001", 10)
 // init db
-
 require("./dbs/init.mongodb")
 checkOverload()
 
@@ -30,19 +33,19 @@ app.use(require("./routes"))
 //handling error
 
 app.use((req, res, next) => {
-  const error = new Api404Error("Resource not found")
-  next(error)
+    const error = new Api404Error("Resource not found")
+    next(error)
 })
 
 app.use((error, req, res, next) => {
-  const statusCode = error.status || 500
+    const statusCode = error.status || 500
 
-  return res.status(statusCode).json({
-    status: "error",
-    error: statusCode,
-    stack: error.stack,
-    message: error.message || "Internal Server Error",
-  })
+    return res.status(statusCode).json({
+        status: "error",
+        error: statusCode,
+        stack: error.stack,
+        message: error.message || "Internal Server Error",
+    })
 })
 
 // init factory
