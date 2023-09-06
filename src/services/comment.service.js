@@ -2,6 +2,7 @@
 
 const { Api404Error } = require("../core/error.response")
 const Comment = require("../models/comment.model")
+const { findProduct } = require("../models/repositories/product.repo")
 const { convertToObjectIdMongodb } = require("../utils/index")
 
 class CommentService {
@@ -90,6 +91,7 @@ class CommentService {
             if (!parent) throw new Api404Error("not found comment for product")
             const comments = await Comment.find({
                 comment_productId: convertToObjectIdMongodb(productId),
+                comment_parentId: convertToObjectIdMongodb(parentcommentId),
                 comment_left: { $gt: parent.comment_left },
                 comment_right: { $lte: parent.comment_right },
             })
@@ -102,9 +104,20 @@ class CommentService {
                 .sort({
                     comment_left: 1,
                 })
+            console.log("comments::", comments)
+            const newComment = await Promise.all(
+                comments.map(async (comment) => {
+                    const countComments = await Comment.count({
+                        comment_parentId: convertToObjectIdMongodb(comment._id),
+                    }).count()
 
-            console.log("comments + parentcommentId", comments)
-            return comments
+                    const newComment = { ...comment._doc, countComments }
+                    return newComment
+                })
+            )
+            return {
+                comments: newComment,
+            }
         }
 
         const comments = await Comment.find({
@@ -121,8 +134,75 @@ class CommentService {
                 comment_left: 1,
             })
 
-        console.log("comments", comments)
-        return comments
+        const newComment = await Promise.all(
+            comments.map(async (comment) => {
+                const countComments = await Comment.count({
+                    comment_parentId: convertToObjectIdMongodb(comment._id),
+                }).count()
+
+                const newComment = { ...comment._doc, countComments }
+                return newComment
+            })
+        )
+        return {
+            comments: newComment,
+        }
+    }
+
+    static async deleteComments({ commentId, productId }) {
+        const foundProduct = await findProduct({ product_id: productId })
+
+        if (!foundProduct) throw new Api404Error("Product not found")
+
+        const comment = await Comment.findById(commentId)
+        if (!comment) throw new Api404Error("comment not found")
+
+        // 1. Xác định left, right của commentId
+        const leftValue = comment.comment_left
+        const rightValue = comment.comment_right
+
+        // 2. tính width
+        const width = rightValue - leftValue + 1
+
+        //3.  xoá tất cả commentId con
+        await Comment.deleteMany({
+            comment_productId: convertToObjectIdMongodb(productId),
+            comment_left: {
+                $gte: leftValue,
+                $lte: rightValue,
+            },
+        })
+
+        // cập nhật giá trị width right còn lại
+        await Comment.updateMany(
+            {
+                comment_productId: convertToObjectIdMongodb(productId),
+                comment_right: {
+                    $gt: rightValue,
+                },
+            },
+            {
+                $inc: {
+                    comment_right: -width,
+                },
+            }
+        )
+
+        await Comment.updateMany(
+            {
+                comment_productId: convertToObjectIdMongodb(productId),
+                comment_left: {
+                    $gt: rightValue,
+                },
+            },
+            {
+                $inc: {
+                    comment_left: -width,
+                },
+            }
+        )
+
+        return true
     }
 }
 

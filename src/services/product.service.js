@@ -19,7 +19,6 @@ class ProductService {
     }
 
     static async createProduct(type, payload) {
-        console.log(ProductService.productRegistry)
         const productClass = ProductService.productRegistry[type]
         if (!productClass)
             throw new Api400Error(`Invalid product types ${type}`)

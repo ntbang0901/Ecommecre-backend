@@ -1,6 +1,7 @@
 const { product } = require("../models/product.model")
 const { insertInventory } = require("../models/repositories/inventory.repo")
 const { updateProductById } = require("../models/repositories/product.repo")
+const NotificationService = require("../services/notification.service")
 
 /*
     product_name
@@ -46,6 +47,18 @@ class Product {
                 stock: this.product_quantity,
             })
         }
+        // push notification to system collection
+        NotificationService.pushNotiToSystem({
+            type: "SHOP-001",
+            receivedId: 1,
+            senderId: this.product_shop,
+            options: {
+                product_name: this.product_name,
+                shop_name: this.product_shop,
+            },
+        })
+            .then((rs) => console.log(rs))
+            .catch(console.error)
 
         return newProduct
     }

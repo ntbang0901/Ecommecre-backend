@@ -12,10 +12,16 @@ class CommentController {
     }
 
     getCommentsByParentId = async (req, res, next) => {
-        console.log(req.query)
         new SuccessResponse({
             message: "get comments successfully!",
             metadata: await CommentService.getCommentByParentId(req.query),
+        }).send(res)
+    }
+
+    deleteComments = async (req, res, next) => {
+        new SuccessResponse({
+            message: "delete comments successfully!",
+            metadata: await CommentService.deleteComments(req.body),
         }).send(res)
     }
 }

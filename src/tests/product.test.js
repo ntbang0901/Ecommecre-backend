@@ -6,7 +6,6 @@ class ProductServiceTest {
             productId,
             quantity,
         }
-        console.log(`test::Test`)
         redisPubSubService.publish("purchase_events", JSON.stringify(order))
     }
 }
